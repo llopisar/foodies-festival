@@ -16,11 +16,13 @@
   "author": "Juan De la torre @codigoconjuan",
   "license": "ISC",
   "devDependencies": {
+    "del": "^8.0.0",
     "glob": "^11.0.3",
-    "gulp": "^5.0.0",
+    "gulp": "^5.0.1",
+    "gulp-cli": "^3.1.0",
     "gulp-sass": "^5.1.0",
     "gulp-terser": "^2.1.0",
-    "sass": "^1.75.0",
+    "sass": "^1.90.0",
     "sharp": "^0.34.3"
   }
 }
