@@ -88,6 +88,12 @@ export function html() {
     .pipe(dest('build'))
 }
 
+// Copiar videos a build/
+export function videos() {
+  return src('src/video/**/*')
+    .pipe(dest('build/video'));
+}
+
 // Modo desarrollo con watch
 export function dev() {
   watch('src/scss/**/*.scss', css)
@@ -97,7 +103,7 @@ export function dev() {
 }
 
 // Tarea por defecto para local
-export default series(crop, js, css, imagenes, html, dev)
+export const build = series(crop, js, css, imagenes, videos, html);
 
 // Tarea de producción para Netlify
-export const build = series(js, css, imagenes, html)
+export default series(crop, js, css, imagenes, videos, html, dev);
