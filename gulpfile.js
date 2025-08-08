@@ -90,8 +90,8 @@ export function html() {
 
 // Videos a build (copia sin modificar)
 export function videos() {
-  return src('src/video/**/*.{mp4,webm,ogg}')
-    .pipe(dest('build/video'));
+  return src('src/video/**/*.{mp4,webm}')
+    .pipe(dest('build/video', { encoding: false }));
 }
 
 // Watch de desarrollo
@@ -104,7 +104,7 @@ export function dev() {
 }
 
 // PRODUCCIÓN (para Netlify y local): sin crop, videos primero
-export const build = series(crop, js, css, imagenes, html, videos);
+export const build = series(videos, js, css, imagenes, html)
 
 // DESARROLLO (sin crop para evitar paradas)
-export default series(crop, videos, js, css, imagenes, html, dev)
+export default series(videos, js, css, imagenes, html, dev)
