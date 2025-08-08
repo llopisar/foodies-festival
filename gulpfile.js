@@ -20,14 +20,12 @@ export function js(done) {
 // CSS
 export function css(done) {
   src('src/scss/app.scss', { sourcemaps: true })
-    .pipe(
-      sass({ outputStyle: 'compressed' }).on('error', sass.logError)
-    )
+    .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
     .pipe(dest('build/css', { sourcemaps: '.' }))
   done()
 }
 
-// THUMBS (gallery)
+// Thumbnails de la galería
 export async function crop(done) {
   const inputFolder = 'src/img/gallery/full'
   const outputFolder = 'src/img/gallery/thumb'
@@ -39,12 +37,13 @@ export async function crop(done) {
   }
 
   const images = fs.readdirSync(inputFolder).filter(file => /\.(jpg)$/i.test(path.extname(file)))
+
   try {
     images.forEach(file => {
       const inputFile = path.join(inputFolder, file)
       const outputFile = path.join(outputFolder, file)
       sharp(inputFile)
-        .resize(width, height, { position: 'centre' }) // 'centre' ok en sharp
+        .resize(width, height, { position: 'centre' })
         .toFile(outputFile)
     })
     done()
@@ -53,11 +52,10 @@ export async function crop(done) {
   }
 }
 
-// IMÁGENES a build (jpg/png + webp/avif)
+// Optimizar imágenes y generar WebP/AVIF
 export async function imagenes(done) {
   const srcDir = './src/img'
   const buildDir = './build/img'
-  // FIX del glob: .{jpg,png}
   const images = await glob('./src/img/**/*.{jpg,png}')
 
   images.forEach(file => {
@@ -84,23 +82,22 @@ function procesarImagenes(file, outputSubDir) {
   sharp(file).avif().toFile(outputFileAvif)
 }
 
-// NUEVO: copiar HTML a build/
+// Copiar HTML a build
 export function html() {
-  return src('src/**/*.html')
+  return src(['*.html', 'src/**/*.html'])
     .pipe(dest('build'))
 }
 
-// WATCH para desarrollo
+// Modo desarrollo con watch
 export function dev() {
   watch('src/scss/**/*.scss', css)
   watch('src/js/**/*.js', js)
-  // FIX: antes miraba 'src/js' en vez de 'src/img'
   watch('src/img/**/*.{png,jpg}', imagenes)
   watch('src/**/*.html', html)
 }
 
-// Tarea por defecto (dev)
+// Tarea por defecto para local
 export default series(crop, js, css, imagenes, html, dev)
 
-// Tarea de producción (para Netlify)
-export const build = series(crop, js, css, imagenes, html)
+// Tarea de producción para Netlify
+export const build = series(js, css, imagenes, html)
