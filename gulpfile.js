@@ -25,7 +25,7 @@ export function css(done) {
   done()
 }
 
-// Thumbnails de la galería
+// (Opcional) Thumbnails de galería – desactivado para evitar errores
 export async function crop(done) {
   const inputFolder = 'src/img/gallery/full'
   const outputFolder = 'src/img/gallery/thumb'
@@ -37,26 +37,26 @@ export async function crop(done) {
   }
 
   const images = fs.readdirSync(inputFolder).filter(file => /\.(jpg)$/i.test(path.extname(file)))
-
   try {
-    images.forEach(file => {
+    for (const file of images) {
       const inputFile = path.join(inputFolder, file)
       const outputFile = path.join(outputFolder, file)
-      sharp(inputFile)
-        .resize(width, height, { position: 'centre' })
-        .toFile(outputFile)
-    })
+      if (!fs.existsSync(outputFile)) {
+        await sharp(inputFile).resize(width, height, { position: 'centre' }).toFile(outputFile)
+      }
+    }
     done()
   } catch (error) {
     console.log(error)
+    done(error)
   }
 }
 
-// Optimizar imágenes y generar WebP/AVIF
+// Imágenes a build (solo jpg/png)
 export async function imagenes(done) {
   const srcDir = './src/img'
   const buildDir = './build/img'
-  const images = await glob('./src/img/**/*.{jpg,png}')
+  const images = await glob('./src/img/**/*.{jpg,png}', { nodir: true })
 
   images.forEach(file => {
     const relativePath = path.relative(srcDir, path.dirname(file))
@@ -82,28 +82,29 @@ function procesarImagenes(file, outputSubDir) {
   sharp(file).avif().toFile(outputFileAvif)
 }
 
-// Copiar HTML a build
+// HTML a build (raíz + src/)
 export function html() {
   return src(['*.html', 'src/**/*.html'])
     .pipe(dest('build'))
 }
 
-// Copiar videos a build/
+// Videos a build (copia sin modificar)
 export function videos() {
-  return src('src/video/**/*')
+  return src('src/video/**/*.{mp4,webm,ogg}')
     .pipe(dest('build/video'));
 }
 
-// Modo desarrollo con watch
+// Watch de desarrollo
 export function dev() {
   watch('src/scss/**/*.scss', css)
   watch('src/js/**/*.js', js)
   watch('src/img/**/*.{png,jpg}', imagenes)
-  watch('src/**/*.html', html)
+  watch('src/video/**/*', videos)
+  watch(['*.html', 'src/**/*.html'], html)
 }
 
-// Tarea por defecto para local
-export const build = series(crop, js, css, imagenes, videos, html);
+// PRODUCCIÓN (para Netlify y local): sin crop, videos primero
+export const build = series(crop, js, css, imagenes, html, videos);
 
-// Tarea de producción para Netlify
-export default series(crop, js, css, imagenes, videos, html, dev);
+// DESARROLLO (sin crop para evitar paradas)
+export default series(crop, videos, js, css, imagenes, html, dev)

@@ -1,3 +1,4 @@
+@use 'sass:color';
 @use 'base/variables' as v;
 @use 'base/mixins' as m;
 
@@ -68,7 +69,7 @@
             border-radius: 1rem;
             cursor: pointer;
             &:hover {
-                background-color: darken(v.$morado, 20%);
+                background-color: color.adjust(v.$morado, $lightness: -20%);
             }
         }
     }

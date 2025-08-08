@@ -1,36 +1,40 @@
 @use 'base/variables' as v;
 @use 'base/mixins' as m;
+@use 'sass:color';
 
 .video {
     position: relative;
     min-height: 50rem;
     max-height: 70rem;
     overflow: hidden;
+
+    video {
+        position: absolute;  // clave para que quede de fondo
+        inset: 0;             // top:0; right:0; bottom:0; left:0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;    // cubre todo el contenedor
+        z-index: 0;           // debajo del overlay
+        display: block;
+    }
+
     .overlay {
         position: absolute;
+        inset: 0;
         background: linear-gradient(
             270deg,
             rgba(v.$morado, 0.6),
-            rgba(darken(v.$morado, 20%), 0.9)
+            rgba(color.adjust(v.$morado, $lightness: -20%), 0.9)
         );
-        inset: 0;
-        
+        z-index: 1; // sobre el video
         display: flex;
         align-items: center;
-        }
-
-    video {
-        display: block;
-        width: auto;
-        @include m.desktop {
-            width: 100%;
-        }
     }
 }
 
 .contenido-video {
-    z-index: 10;
-
+    position: relative;
+    z-index: 2; // sobre el overlay
     h2 {
         color: v.$blanco;
         font-size: 7rem;
@@ -44,7 +48,5 @@
         font-size: 2.4rem;
         font-weight: 700;
         margin: 0;
-        
     }
-
 }
