@@ -93,4 +93,8 @@ export function dev() {
 }
 
 
+// Tarea por defecto para desarrollo (incluye watch)
+export default series(crop, js, css, imagenes, dev);
+
+// Tarea para producción (sin watch)
 export const build = series(crop, js, css, imagenes);
